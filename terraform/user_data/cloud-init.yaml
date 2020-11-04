@@ -1,0 +1,31 @@
+#cloud-config
+package_upgrade: true
+package_reboot_if_required: true
+
+write_files:
+  - path: /etc/systemd/system/minecraft.service
+    owner: root:root
+    permissions: '0755'
+    content: |
+        [Unit]
+        Description=Run minecraft container
+        Requires=docker.service
+        After=docker.service
+
+        [Service]
+        Restart=always
+        ExecStartPre=-/usr/bin/docker rm minecraft
+        ExecStart=/usr/bin/docker run -p 25565:25565 --name minecraft -e EULA=TRUE -e VERSION=1.16.3 itzg/minecraft-server
+        ExecStop=/usr/bin/docker stop -t 15 minecraft
+
+        [Install]
+        WantedBy=multi-user.target
+
+runcmd:
+  - curl -fsSL https://get.docker.com -o get-docker.sh; sh get-docker.sh
+  - systemctl enable minecraft.service
+  - systemctl start minecraft.service
+
+system_info:
+  default_user:
+    groups: [docker]
