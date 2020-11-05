@@ -13,9 +13,7 @@ terraform destroy
 
 ```shell script
 # get the instance public ip
-terraform show -json | jq -r '.values[].child_modules[].resources[]
-| select(.address == "module.ec2.aws_instance.this[0]") |
-.values.public_ip'
+terraform show -json | jq -r '.values[].child_modules[].resources[] | select(.address == "module.ec2.aws_instance.this[0]") | .values.public_ip'
 ```
 
 ```shell script
